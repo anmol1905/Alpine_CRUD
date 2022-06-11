@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css"
+        integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <title>CRUD Application with Alpine.js</title>
+</head>
+
+<body>
+
+    <div class="container-fluid mt-5" x-data="Empdata()">
+        <div class="row">
+            <div class="col-8">
+                <div class="card">
+                    <div class="card-header text-light bg-dark">
+                        Employee Table
+                    </div>
+                    <div class="card-body">
+                        <table class="table">
+                            <thead class="thead">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Mobile</th>
+                                    <th>City</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody x-data="{teams:[]}" x-init="
+                            fetch('http://127.0.0.1:3000/list')
+                        .then(response => response.json())
+                        .then(response => { teams = response;})
+                        ">
+                                <template x-for="(data,_id) in teams" :key="data._id">
+                                    <tr>
+
+                                        <td x-text="data.fullName"></td>
+                                        <td x-text="data.email"></td>
+                                        <td x-text="data.mobile"></td>
+                                        <td x-text="data.city"></td>
+                                        <td>
+                                            <button @click.prevent="editData(data,_id)"
+                                                class="btn btn-info">Edit</button>
+                                            <button @click.prevent="deleteData(data._id)"
+                                                class="btn btn-danger">Delete</button>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="card">
+                    <div class="card-header text-light bg-dark">
+                        <span x-show="addMode">Create Employee</span>
+                        <span x-show="!addMode">Edit Employee</span>
+                    </div>
+                    <div class="card-body">
+                        <form @submit.prevent="submitData" x-show="addMode">
+                            <div class="form-group">
+                                <label>Name</label>
+                                <input x-model="formData.fullName" type="text" class="form-control"
+                                    placeholder="Enter Name">
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input x-model="formData.email" type="text" class="form-control"
+                                    placeholder="Enter Email">
+                            </div>
+                            <div class="form-group">
+                                <label>Mobile</label>
+                                <input x-model="formData.mobile" type="text" class="form-control"
+                                    placeholder="Enter Mobile">
+                            </div>
+                            <div class="form-group">
+                                <label>City</label>
+                                <input x-model="formData.city" type="text" class="form-control"
+                                    placeholder="Enter City">
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary">Save</button>
+                            </div>
+                        </form>
+                        <form @submit.prevent="updateData" x-show="!addMode">
+                            <div class="form-group">
+                                <label>Name</label>
+                                <input x-model="formData.fullName" type="text" class="form-control"
+                                    placeholder="Enter Name">
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input x-model="formData.email" type="text" class="form-control"
+                                    placeholder="Enter Email">
+                            </div>
+                            <div class="form-group">
+                                <label>Mobile</label>
+                                <input x-model="formData.mobile" type="text" class="form-control"
+                                    placeholder="Enter Mobile">
+                            </div>
+                            <div class="form-group">
+                                <label>City</label>
+                                <input x-model="formData.city" type="text" class="form-control"
+                                    placeholder="Enter City">
+                            </div>
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-primary">Update</button>
+                                <button type="button" class="btn btn-danger" @click.prevent="cancelEdit">Cancel
+                                    Edit</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+        function Empdata() {
+            return {
+                addMode: true,
+                formData: {
+                    fullName: '',
+                    email: '',
+                    city: '',
+                    mobile: ''
+                },
+                submitData() {
+                    url = 'http://127.0.0.1:3000/'
+                    fetch(url, {
+                        method: "post",
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(this.formData),
+                    }).then(() => {
+                        console.log('submitted successfully')
+                    })
+                        .catch(() => {
+                            console.log('Error in submission')
+                        })
+                    location.reload()
+                },
+                editData(data, _id) {
+                    this.addMode = false
+                    this.formData.fullName = data.fullName
+                    this.formData.email = data.email
+                    this.formData.mobile = data.mobile
+                    this.formData.city = data.city
+                    this.formData._id = data._id
+                },
+                updateData() {
+                    url = 'http://127.0.0.1:3000/'
+                    fetch(url, {
+                        method: "post",
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(this.formData),
+                    }).then(() => {
+                        console.log('submitted successfully')
+                    })
+                        .catch(() => {
+                            console.log('Error in submission')
+                        })
+                    location.reload()
+                },
+                cancelEdit() {
+                    this.resetForm()
+                },
+                resetForm() {
+                    this.formData.fullName = ''
+                    this.formData.email = ''
+                    this.formData.mobile = ''
+                    this.formData.city = ''
+                    this.addMode = true
+                },
+                deleteData(_id) {
+                    url = 'http://127.0.0.1:3000/delete/' + _id
+                    fetch(url, {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: null,
+                    }).then(() => {
+                        console.log('success');
+                        location.reload()
+                    }).catch(console.log('error'))
+                }
+            }
+        }
+
+    </script>
+</body>
+
+</html>
